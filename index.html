@@ -1,13 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Charity Water Game</title>
-    <link rel="stylesheet" href="styles.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Every Drop Counts — charity: water</title>
+ 
+<!-- Fonts: Baloo 2 (friendly display) + Poppins (clean UI) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+ 
+<link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <h1>Welcome to the Charity Water Game Prototype</h1>
-    <script src="script.js"></script>
+<div class="app">
+ 
+  <!-- ================= TOP BAR ================= -->
+  <div class="topbar">
+    <div class="brand">
+      <!-- Logo placeholder: swap for the official charity: water logo before launch -->
+      <svg class="logo-can" viewBox="0 0 24 28"><rect x="2" y="5" width="20" height="21" rx="4" fill="#FFC907" stroke="#003366" stroke-width="2"/><rect x="7" y="1" width="10" height="5" rx="2" fill="#FFC907" stroke="#003366" stroke-width="2"/></svg>
+      <div><b>charity: water</b><span>Every Drop Counts</span></div>
+    </div>
+ 
+    <div class="stat"><div class="k">SCORE</div><div class="v" id="score">0</div></div>
+    <div class="meter-wrap">
+      <div class="k">WELL <span id="meterTxt">0 / 25</span></div>
+      <div class="meter"><div class="meter-fill" id="meterFill"></div></div>
+    </div>
+    <div class="stat"><div class="k">WELLS</div><div class="v" id="wells">0</div></div>
+    <div class="stat">
+      <div class="k">LIVES</div>
+      <div class="lives" id="lives"></div>
+    </div>
+    <button class="icon-btn" id="muteBtn" title="Sound on/off">♪</button>
+    <button class="icon-btn" id="pauseBtn" title="Pause">II</button>
+    <button class="icon-btn" id="resetBtn" title="Reset game">&#8635;</button>
+  </div>
+ 
+  <!-- ================= GAME AREA ================= -->
+  <div class="game-area" id="area" data-stage="0">
+    <div class="hill back"></div>
+    <div class="hill front"></div>
+ 
+    <!-- Village props that appear as wells get funded -->
+    <svg class="prop hut" width="60" height="46" viewBox="0 0 60 46"><polygon points="0,20 30,0 60,20" fill="#6B4F2A"/><rect x="6" y="20" width="48" height="26" fill="#C49A6C"/><rect x="23" y="30" width="14" height="16" fill="#6B4F2A"/></svg>
+    <svg class="prop well" width="70" height="60" viewBox="0 0 70 60"><rect x="8" y="30" width="54" height="30" rx="5" fill="#9A7B52" stroke="#003366" stroke-width="2"/><rect x="6" y="2" width="6" height="30" fill="#6B4F2A"/><rect x="58" y="2" width="6" height="30" fill="#6B4F2A"/><polygon points="2,12 35,-2 68,12" fill="#FFC907" stroke="#003366" stroke-width="2"/></svg>
+    <svg class="prop tree" width="44" height="56" viewBox="0 0 44 56"><rect x="18" y="34" width="8" height="22" fill="#6B4F2A"/><circle cx="22" cy="22" r="20" fill="#69a52f"/></svg>
+ 
+    <!-- The catcher -->
+    <div class="can" id="can"></div>
+ 
+    <!-- Feedback layers -->
+    <div class="flash" id="flash"></div>
+    <div class="toast" id="toast" aria-live="polite"></div>
+    <div class="banner" id="banner"></div>
+    <canvas id="confetti"></canvas>
+ 
+    <!-- START overlay -->
+    <div class="overlay" id="startScreen">
+      <div class="logo-pill">
+        <svg class="logo-can" viewBox="0 0 24 28"><rect x="2" y="5" width="20" height="21" rx="4" fill="#FFC907" stroke="#003366" stroke-width="2"/><rect x="7" y="1" width="10" height="5" rx="2" fill="#FFC907" stroke="#003366" stroke-width="2"/></svg>
+        charity: water
+      </div>
+      <h1>EVERY DROP<br>COUNTS<small>Catch clean water. Fund wells.</small></h1>
+      <p class="how"><b>Tap the drops</b> to collect them — or slide your jerry can to catch them. Grab bonus cans, but dodge the muddy drops (they cost points!). Fill the meter to fund a well — fund <b>3 wells</b> to win!</p>
+      <button class="btn" id="startBtn">Start Game</button>
+      <p class="how">Desktop: move your mouse or use ← →&nbsp;&nbsp;·&nbsp;&nbsp;Phone: drag with your finger</p>
+    </div>
+ 
+    <!-- END overlay (win or lose) -->
+    <div class="overlay hidden" id="endScreen">
+      <h1 id="endTitle">You did it!</h1>
+      <p id="endMsg"></p>
+      <div class="stats-line">Score <b id="finalScore">0</b> &nbsp;·&nbsp; Wells funded <b id="finalWells">0</b></div>
+      <button class="btn" id="againBtn">Play Again</button>
+      <a class="link" href="https://www.charitywater.org" target="_blank" rel="noopener">Learn more at charity: water →</a>
+    </div>
+  </div>
+ 
+  <footer>Prototype · built for charity: water · real funds go to <a href="https://www.charitywater.org" target="_blank" rel="noopener">charitywater.org</a></footer>
+</div>
+ 
+<script src="script.js"></script>
 </body>
 </html>
+ 

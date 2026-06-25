@@ -1,15 +1,258 @@
-/* Charity: water Brand Colors
+/* ============================================================
+   EVERY DROP COUNTS — prototype
+   charity: water game (Project 4 / build week)
+   Brand colors: yellow #FFC907, navy #003366, water blue #2E9DF7
+   ============================================================ */
 
-Primary Colors:
-- Yellow:     #FFC907
-- Blue:       #2E9DF7
+:root{
+  --yellow:#FFC907;
+  --yellow-dark:#E6B400;
+  --navy:#003366;
+  --water:#2E9DF7;
+  --water-dark:#1C7BD4;
+  --brown:#6B4F2A;
+  --cream:#FFF8E6;
+  --hill:#7FB539;
+  --hill-dark:#5E8E2B;
+  --sky-top:#CFE9FB;
+  --sky-bottom:#EAF7FF;
+  --red:#E64C3C;
+}
 
-Secondary Colors:
-- Light Blue: #8BD1CB
-- Green:      #4FCB53
-- Orange:     #FF902A
-- Red:        #F5402C
-- Dark Green: #159A48
-- Pink:       #F16061
+*{ box-sizing:border-box; margin:0; padding:0; }
 
-*/
+body{
+  font-family:'Poppins', system-ui, sans-serif;
+  background:
+    radial-gradient(circle at 20% 0%, #1a4a7a 0%, transparent 55%),
+    linear-gradient(160deg, #003366 0%, #00203f 100%);
+  color:var(--navy);
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+  -webkit-tap-highlight-color:transparent;
+}
+
+/* ---- App shell ---- */
+.app{
+  width:100%;
+  max-width:880px;
+}
+
+/* ---- Top bar (logo + stats) ---- */
+.topbar{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  background:var(--yellow);
+  border:3px solid var(--navy);
+  border-bottom:none;
+  border-radius:16px 16px 0 0;
+  padding:10px 16px;
+  flex-wrap:wrap;
+}
+.brand{ display:flex; align-items:center; gap:8px; margin-right:auto; }
+.brand .logo-can{ width:24px; height:28px; }
+.brand b{ font-family:'Baloo 2'; font-size:18px; color:var(--navy); line-height:1; }
+.brand span{ display:block; font-size:11px; font-weight:600; opacity:.8; }
+
+.stat{ text-align:center; line-height:1.05; min-width:54px; }
+.stat .k{ font-size:11px; font-weight:700; letter-spacing:.04em; opacity:.85; }
+.stat .v{ font-family:'Baloo 2'; font-size:20px; font-weight:800; }
+
+/* Well meter */
+.meter-wrap{ min-width:150px; }
+.meter-wrap .k{ font-size:11px; font-weight:700; text-align:center; }
+.meter{
+  height:16px; background:#fff; border:2px solid var(--navy);
+  border-radius:10px; overflow:hidden; margin-top:2px;
+}
+.meter-fill{
+  height:100%; width:0%; background:var(--water);
+  border-radius:10px 0 0 10px; transition:width .25s ease;
+}
+
+/* Lives = hearts */
+.lives{ display:flex; gap:3px; }
+.heart{ width:18px; height:18px; transition:transform .2s, opacity .2s; }
+.heart.lost{ opacity:.2; transform:scale(.7); }
+
+.icon-btn{
+  border:2px solid var(--navy); background:#fff; color:var(--navy);
+  width:34px; height:30px; border-radius:8px; font-size:14px; cursor:pointer;
+  font-weight:700; display:grid; place-items:center;
+}
+.icon-btn:active{ transform:translateY(1px); }
+
+/* ============================================================
+   GAME AREA
+   ============================================================ */
+.game-area{
+  position:relative;
+  width:100%;
+  height:min(70vh, 560px);
+  border:3px solid var(--navy);
+  border-radius:0 0 16px 16px;
+  overflow:hidden;
+  background:linear-gradient(var(--sky-top), var(--sky-bottom));
+  touch-action:none;            /* stop the page scrolling while you drag */
+  cursor:crosshair;
+  user-select:none;
+}
+
+/* Hills (back + front). Color shifts as the village is helped. */
+.hill{
+  position:absolute; left:0; width:100%;
+  border-radius:50% 50% 0 0 / 100% 100% 0 0;
+  transition:background .8s ease;
+}
+.hill.back{ bottom:0; height:26%; background:var(--hill); filter:saturate(.6) brightness(.95); }
+.hill.front{ bottom:0; height:16%; background:var(--hill-dark); filter:saturate(.6) brightness(.95); }
+
+/* Village props fade/scale in as wells are funded */
+.prop{ position:absolute; bottom:9%; transition:opacity .8s ease, transform .8s ease; opacity:0; transform:translateY(10px) scale(.85); }
+.prop.show{ opacity:1; transform:translateY(0) scale(1); }
+.hut{ left:10%; }
+.well{ right:16%; }
+.tree{ right:38%; bottom:10%; }
+
+/* As stages rise, the land gets greener and lusher */
+.game-area[data-stage="1"] .hill,
+.game-area[data-stage="2"] .hill,
+.game-area[data-stage="3"] .hill{ filter:saturate(1) brightness(1); }
+.game-area[data-stage="2"] .hill.back{ background:#86c33f; }
+.game-area[data-stage="3"] .hill.back{ background:#8fd142; }
+.game-area[data-stage="3"] .hill.front{ background:#69a52f; }
+
+/* ---- Falling items ---- */
+.item{ position:absolute; top:0; left:0; will-change:transform; }
+.drop-shape{
+  width:26px; height:26px;
+  border-radius:50% 50% 50% 0;
+  transform:rotate(45deg);
+  box-shadow:inset -3px -3px 0 rgba(0,0,0,.08);
+}
+.clean .drop-shape{ background:radial-gradient(circle at 35% 30%, #7cc1fb, var(--water)); border:2px solid var(--water-dark); }
+.bad   .drop-shape{ background:radial-gradient(circle at 35% 30%, #9a7b52, var(--brown)); border:2px solid #3f2e18; }
+
+/* Bonus item = a little yellow jerry can */
+.bonus .can-mini{
+  width:30px; height:32px; background:var(--yellow); border:2px solid var(--navy);
+  border-radius:7px; position:relative;
+}
+.bonus .can-mini::before{
+  content:""; position:absolute; top:-7px; left:50%; transform:translateX(-50%);
+  width:44%; height:8px; background:var(--yellow); border:2px solid var(--navy);
+  border-bottom:none; border-radius:5px 5px 0 0;
+}
+
+/* ---- The player's jerry can (the catcher) ---- */
+.can{
+  position:absolute; bottom:12%; left:0;
+  width:72px; height:76px;
+  background:linear-gradient(var(--yellow), var(--yellow-dark));
+  border:3px solid var(--navy); border-radius:12px;
+  will-change:transform;
+}
+.can::before{ /* handle */
+  content:""; position:absolute; top:-11px; left:50%; transform:translateX(-50%);
+  width:42%; height:11px; background:var(--yellow); border:3px solid var(--navy);
+  border-bottom:none; border-radius:7px 7px 0 0;
+}
+.can::after{ /* white water-drop emblem */
+  content:""; position:absolute; left:50%; top:54%; transform:translate(-50%,-50%) rotate(45deg);
+  width:22px; height:22px; background:#fff; border-radius:50% 50% 50% 0;
+}
+.can.catch{ animation:bob .25s ease; }
+@keyframes bob{ 50%{ transform:translateX(var(--cx)) scale(1.08); } }
+
+/* ---- Floating "+10" feedback ---- */
+.float{
+  position:absolute; font-family:'Baloo 2'; font-weight:800; font-size:20px;
+  pointer-events:none; animation:floatUp .8s ease forwards; text-shadow:0 2px 0 rgba(255,255,255,.6);
+}
+@keyframes floatUp{ to{ transform:translateY(-46px); opacity:0; } }
+
+/* ---- Splash ---- */
+.splash{ position:absolute; width:34px; height:34px; border-radius:50%;
+  border:3px solid var(--water); pointer-events:none; animation:splash .4s ease forwards; }
+@keyframes splash{ from{ transform:scale(.3); opacity:.9; } to{ transform:scale(1.6); opacity:0; } }
+
+/* ---- Toast + milestone banner ---- */
+.toast{
+  position:absolute; top:14px; left:50%; transform:translate(-50%,-14px);
+  background:var(--navy); color:#fff; font-weight:700; font-size:14px;
+  padding:8px 16px; border-radius:20px; opacity:0; transition:.25s; pointer-events:none; white-space:nowrap;
+}
+.toast.show{ opacity:1; transform:translate(-50%,0); }
+
+.banner{
+  position:absolute; top:42%; left:50%; transform:translate(-50%,-50%) scale(.8);
+  background:var(--yellow); color:var(--navy); border:3px solid var(--navy);
+  font-family:'Baloo 2'; font-weight:800; font-size:clamp(20px,5vw,30px);
+  padding:14px 26px; border-radius:18px; opacity:0; transition:.35s; pointer-events:none; text-align:center;
+}
+.banner.show{ opacity:1; transform:translate(-50%,-50%) scale(1); }
+
+/* Red flash when you catch a bad drop */
+.flash{ position:absolute; inset:0; background:var(--red); opacity:0; pointer-events:none; }
+.flash.show{ animation:flash .35s ease; }
+@keyframes flash{ 30%{ opacity:.35; } to{ opacity:0; } }
+
+/* ============================================================
+   OVERLAYS (start / game over)
+   ============================================================ */
+.overlay{
+  position:absolute; inset:0; background:rgba(0,30,60,.78); backdrop-filter:blur(3px);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; color:#fff; padding:24px; gap:10px; z-index:10;
+}
+.overlay.hidden{ display:none; }
+.overlay h1{ font-family:'Baloo 2'; font-size:clamp(30px,8vw,54px); line-height:.95; color:var(--yellow); }
+.overlay h1 small{ display:block; font-size:.42em; color:#fff; font-weight:600; letter-spacing:.02em; }
+.overlay p{ max-width:420px; font-size:15px; opacity:.92; }
+.overlay .stats-line{ font-family:'Baloo 2'; font-size:22px; color:#fff; }
+.overlay .stats-line b{ color:var(--yellow); }
+
+.btn{
+  font-family:'Baloo 2'; font-weight:800; font-size:20px; cursor:pointer;
+  background:var(--yellow); color:var(--navy); border:3px solid #00264d;
+  padding:12px 34px; border-radius:40px; margin-top:6px;
+  box-shadow:0 4px 0 #00264d; transition:transform .08s, box-shadow .08s;
+}
+.btn:active{ transform:translateY(3px); box-shadow:0 1px 0 #00264d; }
+.btn:focus-visible{ outline:3px solid #fff; outline-offset:3px; }
+
+.link{ color:var(--yellow); font-weight:700; text-decoration:underline; font-size:15px; }
+.how{ font-size:13px; opacity:.8; max-width:360px; }
+.logo-pill{ background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.3);
+  padding:6px 14px; border-radius:20px; display:flex; align-items:center; gap:8px; font-weight:700; }
+.logo-pill .logo-can{ width:20px; height:24px; }
+
+footer{ text-align:center; color:#cfe2f5; font-size:12px; margin-top:10px; opacity:.8; }
+footer a{ color:var(--yellow); }
+
+@media (max-width:520px){
+  .topbar{ gap:8px; padding:8px 10px; }
+  .stat{ min-width:44px; }
+  .stat .v{ font-size:17px; }
+  .meter-wrap{ min-width:110px; order:5; flex:1 1 100%; }
+}
+
+@media (prefers-reduced-motion:reduce){
+  *{ animation-duration:.001s !important; transition-duration:.001s !important; }
+}
+/* --- score pop: real-time color + size feedback --- */
+#score{ display:inline-block; transition:transform .25s ease, color .25s ease; }
+#score.up{ color:#1C7BD4; transform:scale(1.45); }
+#score.down{ color:#E64C3C; transform:scale(1.45); }
+
+/* --- falling items are clickable/tappable --- */
+.item{ cursor:pointer; }
+.item:hover .drop-shape{ filter:brightness(1.12); }
+.item:hover .can-mini{ filter:brightness(1.08); }
+
+/* --- confetti canvas for the win celebration --- */
+#confetti{ position:absolute; inset:0; pointer-events:none; z-index:20; }
